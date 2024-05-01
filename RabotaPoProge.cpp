@@ -4,13 +4,25 @@
 using namespace std;
 
 
-Spice::Spice(string _name, string _color, string _taste, string _aroma) : name(_name), color(_color), taste(_taste), aroma(_aroma) {}
+Spice::Spice(string _name, SpiceColor _color, string _taste, string _aroma) : name(_name), color(_color), taste(_taste), aroma(_aroma) {}
 
 void Spice::display() {
-    cout << name << ": " << color << ", " << taste << " вкус, " << aroma << " запах";
+    string color_str;
+    switch (color) {
+        case SpiceColor::GREEN:
+            color_str = "Зеленый";
+            break;
+        case SpiceColor::BROWN:
+            color_str = "Коричневый";
+            break;
+        case SpiceColor::DARK:
+            color_str = "Темный";
+            break;
+    }
+    cout << name << ": " << color_str << ", " << taste << " вкус, " << aroma << " запах";
 };
 
-Herb::Herb(string _name, string _color, string _taste, string _aroma, string _culinary_use) : Spice(_name, _color, _taste, _aroma), culinary_use(_culinary_use) {}
+Herb::Herb(string _name, SpiceColor _color, string _taste, string _aroma, string _culinary_use) : Spice(_name, _color, _taste, _aroma), culinary_use(_culinary_use) {}
 
 void Herb::display() {
     Spice::display();
@@ -25,7 +37,7 @@ void  Herb::change_aroma() {
     cout << "Добавляем ароматные травы, чтобы усилить запах " << name << "." << endl;
 };
 
-Powder::Powder(string _name, string _color, string _taste, string _aroma, string _form) : Spice(_name, _color, _taste, _aroma), form(_form) {}
+Powder::Powder(string _name, SpiceColor _color, string _taste, string _aroma, string _form) : Spice(_name, _color, _taste, _aroma), form(_form) {}
 
 void Powder::display() {
     Spice::display();
@@ -40,7 +52,7 @@ void Powder::change_aroma() {
     cout << "Растолочь " << name << " в меньшую пыльцу, чтобы усилить аромат." << endl;
 };
 
-Liquid::Liquid(string _name, string _color, string _taste, string _aroma, string _viscosity) : Spice(_name, _color, _taste, _aroma), viscosity(_viscosity){}
+Liquid::Liquid(string _name, SpiceColor _color, string _taste, string _aroma, string _viscosity) : Spice(_name, _color, _taste, _aroma), viscosity(_viscosity){}
 
 void Liquid::display() {
     Spice::display();
@@ -58,9 +70,9 @@ void Liquid::change_aroma() {
 int main()
 {
     setlocale(LC_ALL, "Russian");
-    Herb basil("Базилик", "Зеленый", "Сладкий", "Травянистый", "Итальянская кухня");
-    Powder cumin("Зира", "Коричневый", "Землянистый", "Пряный", "Молотый");
-    Liquid soy_sauce("Соевый соус", "Темный", "Соленый", "Многокомпонентен", "Слабая");
+    Herb basil("Базилик", SpiceColor::GREEN, "Сладкий", "Травянистый", "Итальянская кухня");
+    Powder cumin("Зира", SpiceColor::BROWN, "Землянистый", "Пряный", "Молотый");
+    Liquid soy_sauce("Соевый соус", SpiceColor::DARK, "Соленый", "Многокомпонентен", "Слабая");
 
     cout << "Информация о специях:" << endl;
     basil.display();

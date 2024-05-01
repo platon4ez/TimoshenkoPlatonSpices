@@ -4,18 +4,22 @@
 #include <string>
 using namespace std;
 
-
+enum class SpiceColor {
+    GREEN,
+    BROWN,
+    DARK,
+};
 
 
 class Spice {
 protected:
     string name;
-    string color;
+    SpiceColor color;
     string taste;
     string aroma;
 
 public:
-    Spice(string _name, string _color, string _taste, string _aroma);
+    Spice(string _name, SpiceColor _color, string _taste, string _aroma);
     virtual ~Spice() {}
 
     virtual void display();
@@ -28,7 +32,7 @@ private:
     string culinary_use;
 
 public:
-    Herb(string _name, string _color, string _taste, string _aroma, string _culinary_use);
+    Herb(string _name, SpiceColor _color, string _taste, string _aroma, string _culinary_use);
     virtual ~Herb() {}
 
     void display() override;
@@ -41,7 +45,7 @@ private:
     string form;
 
 public:
-    Powder(string _name, string _color, string _taste, string _aroma, string _form);
+    Powder(string _name, SpiceColor _color, string _taste, string _aroma, string _form);
     virtual ~Powder() {}
 
     void display() override;
@@ -54,7 +58,7 @@ private:
     string viscosity;
 
 public:
-    Liquid(string _name, string _color, string _taste, string _aroma, string _viscosity);
+    Liquid(string _name, SpiceColor _color, string _taste, string _aroma, string _viscosity);
     ~Liquid() {}
 
     void display() override;
