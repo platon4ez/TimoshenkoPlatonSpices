@@ -34,7 +34,7 @@ public:
 
     void removeSpice(Spice* spice) override {
         spices.erase(remove(spices.begin(), spices.end(), spice), spices.end());
-        delete spice; 
+        delete spice;
     }
 
     void display() override {

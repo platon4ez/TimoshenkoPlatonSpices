@@ -6,7 +6,7 @@ using namespace std;
 
 
 enum class SpiceColor {
-    GREEN, 
+    GREEN,
     BROWN,
     YELLOW,
     RED,
