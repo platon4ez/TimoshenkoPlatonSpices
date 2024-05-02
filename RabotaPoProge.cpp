@@ -49,7 +49,10 @@ int main() {
     listSpices.push_back(new Liquid("Бальзамический уксус", SpiceColor::DARK, "Кислый", "Сладкий", "Густой"));
     listSpices.push_back(new Liquid("Вустерский соус", SpiceColor::DARK, "Кислый", "Сложный", "Жидкий"));
 
+    cout << "_________________________________________________________________________________________" << endl;
+
     cout << "Содержимое векторного контейнера после фильтрации по цвету и сортировки по имени:" << endl;
+
     VectorSpiceContainerIterator vectorIterator(vectorContainer.getSpices());
     vector<Spice*> filteredAndSortedVectorSpices;
     vector<Spice*> notFilteredSpices;
@@ -68,25 +71,34 @@ int main() {
         cout << endl;
     }
 
+    cout << "_________________________________________________________________________________________" << endl;
+
+
     cout << "Не прошедшие отбор из векторного контейнера:" << endl;
     for (Spice* spice : notFilteredSpices) {
         spice->display();
         cout << endl;
     }
 
+    cout << "_________________________________________________________________________________________" << endl;
+
     cout << "Сортировка специй по вкусу для не отфильтрованных специй:" << endl;
+
     vector<Spice*> notFilteredAndNotSortedSpices;
     for (Spice* spice : notFilteredSpices) {
         notFilteredAndNotSortedSpices.push_back(spice);
     }
-    
+
     TasteSortIterator tasteSortedIterator(new VectorSpiceContainerIterator(notFilteredAndNotSortedSpices));
     for (tasteSortedIterator.First(); !tasteSortedIterator.IsDone(); tasteSortedIterator.Next()) {
         tasteSortedIterator.GetCurrent()->display();
         cout << endl;
     }
 
+    cout << "_________________________________________________________________________________________" << endl;
+
     cout << "Содержимое лист контейнера после фильтрации по цвету и сортировки по имени:" << endl;
+
     ListSpiceContainerIterator listIterator(listSpices);
     list<Spice*> filteredAndSortedlistSpices;
     list<Spice*> notFilteredlistSpices;
@@ -105,7 +117,12 @@ int main() {
         cout << endl;
     }
 
+    cout << "_________________________________________________________________________________________" << endl;
+
     cout << "Не прошедшие отбор из лист контейнера" << endl;
+
+
+
     for (Spice* spice : notFilteredlistSpices) {
         spice->display();
         cout << endl;
