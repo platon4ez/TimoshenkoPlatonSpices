@@ -1,7 +1,13 @@
-﻿#include "spices.h"
-#include <iostream>
+﻿#include <iostream>
+#include <vector>
+#include <list>
+#include <algorithm>
+#include "spices.h"
+#include "spice_container.h"
+#include "iterators.h"
 
 using namespace std;
+
 
 
 Spice::Spice(string _name, SpiceColor _color, string _taste, string _aroma) : name(_name), color(_color), taste(_taste), aroma(_aroma) {}
@@ -16,6 +22,12 @@ void Spice::display() {
             color_str = "Коричневый";
             break;
         case SpiceColor::DARK:
+            color_str = "Темный";
+            break;
+        case SpiceColor::YELLOW:
+            color_str = "Желтый";
+            break;
+        case SpiceColor::RED:
             color_str = "Темный";
             break;
     }
@@ -66,30 +78,74 @@ void Liquid::change_aroma() {
     cout << "Добавляем ароматные масла в " << name << "." << endl;
 };
 
+bool CompareSpicesByName(Spice* spice1, Spice* spice2) {
+    return spice1->getName() < spice2->getName();
+};
 
 int main()
 {
     setlocale(LC_ALL, "Russian");
-    Herb basil("Базилик", SpiceColor::GREEN, "Сладкий", "Травянистый", "Итальянская кухня");
-    Powder cumin("Зира", SpiceColor::BROWN, "Землянистый", "Пряный", "Молотый");
-    Liquid soy_sauce("Соевый соус", SpiceColor::DARK, "Соленый", "Многокомпонентен", "Слабая");
 
-    cout << "Информация о специях:" << endl;
-    basil.display();
-    cumin.display();
-    soy_sauce.display();
-    cout << endl;
+    VectorSpiceContainer vectorContainer;
+    ListSpiceContainer listContainer;
+    SortingIterator<Spice*> sortedVectorIterator(new VectorSpiceContainerIterator(vectorContainer.getSpices()), CompareSpicesByName);
+    SortingIterator<Spice*> sortedListIterator(new ListSpiceContainerIterator(listContainer.getSpicesList()), CompareSpicesByName);
+
+
     
-    cout << "Рецепт:" << endl;
-    basil.cook_recipe();
-    cumin.cook_recipe();
-    soy_sauce.cook_recipe();
-    cout << endl;
+    vectorContainer.addSpice(new Herb("Мята", SpiceColor::GREEN, "Освежающий", "Мятный", "Коктейли"));
+    vectorContainer.addSpice(new Herb("Базилик", SpiceColor::GREEN, "Сладкий", "Травянистый", "Итальянская кухня"));
+    vectorContainer.addSpice(new Herb("Тимьян", SpiceColor::GREEN, "Землянистый", "Травянистый", "Средиземноморская кухня"));
+    vectorContainer.addSpice(new Powder("Кумин", SpiceColor::BROWN, "Землянистый", "Пряный", "Молотый"));
+    vectorContainer.addSpice(new Powder("Паприка", SpiceColor::RED, "Сладкий", "Дымный", "Молотый"));
+    vectorContainer.addSpice(new Liquid("Оливковое масло", SpiceColor::YELLOW, "Фруктовый", "Нежный", "Густой"));
+    vectorContainer.addSpice(new Liquid("Соевый соус", SpiceColor::DARK, "Соленый", "Умами", "Жидкий"));
 
-    cout << "Смена аромата:" << endl;
-    basil.change_aroma();
-    cumin.change_aroma();
-    soy_sauce.change_aroma();
+    listContainer.addSpice(new Herb("Розмарин", SpiceColor::GREEN, "Хвойный", "Древесный", "Средиземноморская кухня"));
+    listContainer.addSpice(new Herb("Орегано", SpiceColor::GREEN, "Горький", "Пронзающий", "Средиземноморская кухня"));
+    listContainer.addSpice(new Herb("Укроп", SpiceColor::GREEN, "Свежий", "Травянистый", "Скандинавская кухня"));
+    listContainer.addSpice(new Powder("Карри", SpiceColor::YELLOW, "Пряный", "Ароматный", "Молотый"));
+    listContainer.addSpice(new Powder("Чили", SpiceColor::RED, "Пряный", "Дымный", "Молотый"));
+    listContainer.addSpice(new Liquid("Бальзамический уксус", SpiceColor::DARK, "Кислый", "Сладкий", "Густой"));
+    listContainer.addSpice(new Liquid("Соус Ворчестер", SpiceColor::DARK, "Кислый", "Сложный", "Жидкий"));
+
+
+    cout << "_________________________________________________________________________________" << endl;
+    
+    cout << "Содержимое векторного контейнера:" << endl;
+    VectorSpiceContainerIterator vectorIterator(vectorContainer.getSpices());
+    for (vectorIterator.First(); !vectorIterator.IsDone(); vectorIterator.Next()) {
+        vectorIterator.GetCurrent()->display();
+        cout << endl;
+    };
+    
+    cout << "__________________________________________________________________________________" << endl;
+    
+    cout << "Содержимое списочного контейнера : " << endl;
+    ListSpiceContainerIterator listIterator(listContainer.getSpices());
+    for (listIterator.First(); !listIterator.IsDone(); listIterator.Next()) {
+        listIterator.GetCurrent()->display();
+        cout << endl;
+    };
+    
+    cout << "___________________________________________________________________________________" << endl;
+
+    cout << "Содержимое векторного контейнера после сортировки:" << endl;
+    for (sortedVectorIterator.First(); !sortedVectorIterator.IsDone(); sortedVectorIterator.Next()) {
+        sortedVectorIterator.GetCurrent()->display();
+        cout << endl;
+    };
+    
+    cout << "___________________________________________________________________________________" << endl;
+
+
+    cout << "Содержимое списочного контейнера после сортировки:" << endl;
+    for (sortedListIterator.First(); !sortedListIterator.IsDone(); sortedListIterator.Next()) {
+        sortedListIterator.GetCurrent()->display();
+        cout << endl;
+    };
+
 
     return 0;
 }
+

@@ -4,12 +4,14 @@
 #include <string>
 using namespace std;
 
+
 enum class SpiceColor {
-    GREEN,
+    GREEN, 
     BROWN,
+    YELLOW,
+    RED,
     DARK,
 };
-
 
 class Spice {
 protected:
@@ -21,6 +23,10 @@ protected:
 public:
     Spice(string _name, SpiceColor _color, string _taste, string _aroma);
     virtual ~Spice() {}
+    string getName() const {
+        return name;
+    }
+
 
     virtual void display();
     virtual void cook_recipe() = 0;
@@ -34,6 +40,8 @@ private:
 public:
     Herb(string _name, SpiceColor _color, string _taste, string _aroma, string _culinary_use);
     virtual ~Herb() {}
+    string getName() const { return name; }
+
 
     void display() override;
     void cook_recipe() override;
@@ -47,6 +55,8 @@ private:
 public:
     Powder(string _name, SpiceColor _color, string _taste, string _aroma, string _form);
     virtual ~Powder() {}
+    string getName() const { return name; }
+
 
     void display() override;
     void cook_recipe() override;
@@ -59,11 +69,18 @@ private:
 
 public:
     Liquid(string _name, SpiceColor _color, string _taste, string _aroma, string _viscosity);
-    ~Liquid() {}
+    virtual ~Liquid() {}
+    string getName() const { return name; }
+
 
     void display() override;
     void cook_recipe() override;
     void change_aroma() override;
 };
+
+
+
+
+
 
 #endif // SPICES_H
