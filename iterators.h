@@ -57,7 +57,7 @@ class SortingIterator : public Iterator<Type>
 {
 private:
     Iterator<Type>* iterator;
-    function<bool(Type, Type)> compareFunc; 
+    function<bool(Type, Type)> compareFunc;
 
 public:
     SortingIterator(Iterator<Type>* iterator, function<bool(Type, Type)> compareFunc)
@@ -70,6 +70,56 @@ public:
     bool IsDone() const override { return iterator->IsDone(); }
 
     Type GetCurrent() const override { return iterator->GetCurrent(); }
+
+
+    template<typename T>
+    class TasteSortIterator : public Iterator<T> {
+    private:
+        Iterator<T>* iterator;
+        bool(*compareFunction)(T, T);
+
+    public:
+        TasteSortIterator(Iterator<T>* iterator, bool(*compareFunction)(T, T)) : iterator(iterator), compareFunction(compareFunction) {}
+
+        ~TasteSortIterator() {
+            delete iterator;
+        }
+
+        void Reset() override {
+            iterator->Reset();
+        }
+
+        void Next() override {
+            iterator->Next();
+        }
+
+        bool IsDone() override {
+            return iterator->IsDone();
+        }
+
+        T GetCurrent() override {
+            return iterator->GetCurrent();
+        }
+
+        void Sort() {
+            std::vector<T> items;
+            while (!iterator->IsDone()) {
+                items.push_back(iterator->GetCurrent());
+                iterator->Next();
+            }
+            std::sort(items.begin(), items.end(), compareFunction);
+            for (const auto& item : items) {
+                iterator->Reset();
+                while (iterator->GetCurrent() != item && !iterator->IsDone()) {
+                    iterator->Next();
+                }
+                if (!iterator->IsDone()) {
+                    iterator->Next();
+                }
+            }
+            iterator->Reset();
+        }
+    };
 };
 
 #endif // ITERATORS_H

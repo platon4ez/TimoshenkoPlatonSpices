@@ -4,6 +4,7 @@
 #include "spices.h"
 #include <vector>
 #include <list>
+#include <algorithm>
 #include "iterators.h"
 
 using namespace std;
@@ -20,7 +21,6 @@ public:
 class VectorSpiceContainer : public SpiceContainer {
 private:
     vector<Spice*> spices;
-
 public:
     VectorSpiceContainer() = default;
     ~VectorSpiceContainer() {
@@ -28,14 +28,13 @@ public:
             delete spice;
         }
     }
-
     void addSpice(Spice* spice) override {
         spices.push_back(spice);
     }
 
     void removeSpice(Spice* spice) override {
         spices.erase(remove(spices.begin(), spices.end(), spice), spices.end());
-        delete spice;
+        delete spice; 
     }
 
     void display() override {
@@ -61,7 +60,6 @@ public:
             delete spice;
         }
     }
-
     void addSpice(Spice* spice) override {
         spices.push_back(spice);
     }
@@ -79,9 +77,11 @@ public:
     }
 
     vector<Spice*>& getSpices() override {
-        static vector<Spice*> spicesVec(spices.begin(), spices.end());
-        return spicesVec;
+        static vector<Spice*> spiceVector(spices.begin(), spices.end());
+        return spiceVector;
     }
+
+
 };
 
 #endif // SPICE_CONTAINER_H
