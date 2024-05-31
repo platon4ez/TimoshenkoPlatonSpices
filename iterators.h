@@ -1,125 +1,99 @@
-#ifndef ITERATORS_H
+﻿#ifndef ITERATORS_H
 #define ITERATORS_H
 
-#include "spices.h"
 #include <vector>
 #include <list>
-#include <functional> 
+#include <algorithm>
+#include "spices.h"
+#include "spice_container.h"
 
 using namespace std;
 
-template<class Type>
-class Iterator
-{
-protected:
-    Iterator() {}
-
+template <typename T>
+class Iterator {
 public:
     virtual ~Iterator() {}
     virtual void First() = 0;
     virtual void Next() = 0;
-    virtual bool IsDone() const = 0;
-    virtual Type GetCurrent() const = 0;
+    virtual bool IsDone() = 0;
+    virtual T GetCurrent() = 0;
 };
 
-class VectorSpiceContainerIterator : public Iterator<Spice*>
-{
+template <typename T>
+class SortingIterator : public Iterator<T> {
 private:
-    vector<Spice*>& spices;
-    typename vector<Spice*>::iterator it;
-
+    vector<T> elements;
+    typename vector<T>::iterator current;
 public:
-    VectorSpiceContainerIterator(vector<Spice*>& spices) : spices(spices), it(spices.begin()) {}
-
-    void First() override { it = spices.begin(); }
-    void Next() override { ++it; }
-    bool IsDone() const override { return it == spices.end(); }
-    Spice* GetCurrent() const override { return *it; }
+    SortingIterator(Iterator<T>* iterator, bool (*compare)(T, T)) {
+        for (iterator->First(); !iterator->IsDone(); iterator->Next()) {
+            elements.push_back(iterator->GetCurrent());
+        }
+        sort(elements.begin(), elements.end(), compare);
+        current = elements.begin();
+    }
+    void First() override {
+        current = elements.begin();
+    }
+    void Next() override {
+        ++current;
+    }
+    bool IsDone() override {
+        return current == elements.end();
+    }
+    T GetCurrent() override {
+        return *current;
+    }
 };
 
-class ListSpiceContainerIterator : public Iterator<Spice*>
-{
+class VectorSpiceContainerIterator : public Iterator<Spice*> {
 private:
-    list<Spice*>& spices;
-    typename list<Spice*>::iterator it;
-
+    vector<Spice*>::const_iterator current;
+    vector<Spice*>::const_iterator end;
+    vector<Spice*>::const_iterator begin;
 public:
-    ListSpiceContainerIterator(list<Spice*>& spices) : spices(spices), it(spices.begin()) {}
-
-    void First() override { it = spices.begin(); }
-    void Next() override { ++it; }
-    bool IsDone() const override { return it == spices.end(); }
-    Spice* GetCurrent() const override { return *it; }
+    VectorSpiceContainerIterator(const vector<Spice*>& spices)
+        : current(spices.begin()), end(spices.end()), begin(spices.begin()) {}
+    void First() override {
+        current = begin;
+    }
+    void Next() override {
+        ++current;
+    }
+    bool IsDone() override {
+        return current == end;
+    }
+    Spice* GetCurrent() override {
+        return *current;
+    }
 };
 
-template<class Type>
-class SortingIterator : public Iterator<Type>
-{
+class ListSpiceContainerIterator : public Iterator<Spice*> {
 private:
-    Iterator<Type>* iterator;
-    function<bool(Type, Type)> compareFunc;
-
+    list<Spice*>::iterator current;
+    list<Spice*>::iterator end;
+    list<Spice*>::iterator begin;
 public:
-    SortingIterator(Iterator<Type>* iterator, function<bool(Type, Type)> compareFunc)
-        : iterator(iterator), compareFunc(compareFunc) {}
+    ListSpiceContainerIterator(list<Spice*>& spices) : current(spices.begin()), end(spices.end()), begin(spices.begin()) {}
+    void First() override {
+        current = begin;
+    }
+    void Next() override {
+        ++current;
+    }
+    bool IsDone() override {
+        return current == end;
+    }
+    Spice* GetCurrent() override {
+        return *current;
+    }
+};
 
-    void First() override { iterator->First(); }
-
-    void Next() override { iterator->Next(); }
-
-    bool IsDone() const override { return iterator->IsDone(); }
-
-    Type GetCurrent() const override { return iterator->GetCurrent(); }
-
-
-    template<typename T>
-    class TasteSortIterator : public Iterator<T> {
-    private:
-        Iterator<T>* iterator;
-        bool(*compareFunction)(T, T);
-
-    public:
-        TasteSortIterator(Iterator<T>* iterator, bool(*compareFunction)(T, T)) : iterator(iterator), compareFunction(compareFunction) {}
-
-        ~TasteSortIterator() {
-            delete iterator;
-        }
-
-        void Reset() override {
-            iterator->Reset();
-        }
-
-        void Next() override {
-            iterator->Next();
-        }
-
-        bool IsDone() override {
-            return iterator->IsDone();
-        }
-
-        T GetCurrent() override {
-            return iterator->GetCurrent();
-        }
-
-        void Sort() {
-            std::vector<T> items;
-            while (!iterator->IsDone()) {
-                items.push_back(iterator->GetCurrent());
-                iterator->Next();
-            }
-            std::sort(items.begin(), items.end(), compareFunction);
-            for (const auto& item : items) {
-                iterator->Reset();
-                while (iterator->GetCurrent() != item && !iterator->IsDone()) {
-                    iterator->Next();
-                }
-                if (!iterator->IsDone()) {
-                    iterator->Next();
-                }
-            }
-            iterator->Reset();
-        }
-    };
+// Определение класса TasteSortIterator
+class TasteSortIterator : public SortingIterator<Spice*> {
+public:
+    TasteSortIterator(Iterator<Spice*>* iterator, bool (*compare)(Spice*, Spice*))
+        : SortingIterator<Spice*>(iterator, compare) {}
 };
 
 #endif // ITERATORS_H

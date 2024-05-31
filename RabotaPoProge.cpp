@@ -1,63 +1,93 @@
 ﻿#include <iostream>
-#include <vector>
+#include <deque>
 #include <list>
 #include <algorithm>
+#include <ctime>
+#include <cstdlib>
 #include "spices.h"
 #include "spice_container.h"
 #include "iterators.h"
+#include "spice_factory.h"
 
 using namespace std;
 
+string spiceColorToString(SpiceColor color) {
+    switch (color) {
+    case SpiceColor::GREEN:
+        return "Green";
+    case SpiceColor::BROWN:
+        return "Brown";
+    case SpiceColor::YELLOW:
+        return "Yellow";
+    default:
+        return "Unknown";
+    }
+}
 
+void fillContainerWithRandomSpices(VectorSpiceContainer& container, int numSpices) {
+    for (int i = 0; i < numSpices; ++i) {
+        container.addSpice(SpiceFactory::createRandomSpice());
+    }
+}
+
+void fillContainerWithRandomSpices(deque<Spice*>& container, int numSpices) {
+    for (int i = 0; i < numSpices; ++i) {
+        container.push_back(SpiceFactory::createRandomSpice());
+    }
+}
 
 bool CompareSpicesByName(Spice* spice1, Spice* spice2) {
     return spice1->getName() < spice2->getName();
-}
-
-bool CompareSpicesByColor(Spice* spice1, Spice* spice2) {
-    return spice1->getColor() < spice2->getColor();
 }
 
 bool CompareSpicesByTaste(Spice* spice1, Spice* spice2) {
     return spice1->getTaste() < spice2->getTaste();
 }
 
-class TasteSortIterator : public SortingIterator<Spice*> {
+class DequeSpiceContainerIterator : public Iterator<Spice*> {
+private:
+    deque<Spice*>::iterator iterator;
+    deque<Spice*>& spices;
+
 public:
-    TasteSortIterator(Iterator<Spice*>* iterator) : SortingIterator<Spice*>(iterator, CompareSpicesByTaste) {}
+    DequeSpiceContainerIterator(deque<Spice*>& spices) : iterator(spices.begin()), spices(spices) {}
+
+    void First() override {
+        iterator = spices.begin();
+    }
+
+    void Next() override {
+        ++iterator;
+    }
+
+    bool IsDone() override {
+        return iterator == spices.end();
+    }
+
+    Spice* GetCurrent() override {
+        return *iterator;
+    }
 };
 
 int main() {
-    setlocale(LC_ALL, "Russian");
+    srand(static_cast<unsigned>(time(0)));
 
     VectorSpiceContainer vectorContainer;
-    list<Spice*> listSpices;
+    deque<Spice*> dequeSpices;
 
-    vectorContainer.addSpice(new Herb("Мята", SpiceColor::GREEN, "Освежающий", "Мятный", "Коктейли"));
-    vectorContainer.addSpice(new Herb("Базилик", SpiceColor::GREEN, "Сладкий", "Травянистый", "Итальянская кухня"));
-    vectorContainer.addSpice(new Herb("Тимьян", SpiceColor::GREEN, "Землянистый", "Травянистый", "Средиземноморская кухня"));
-    vectorContainer.addSpice(new Powder("Зира", SpiceColor::BROWN, "Землянистый", "Пряный", "Молотый"));
-    vectorContainer.addSpice(new Powder("Паприка", SpiceColor::RED, "Сладкий", "Дымный", "Молотый"));
-    vectorContainer.addSpice(new Liquid("Оливковое масло", SpiceColor::YELLOW, "Фруктовый", "Нежный", "Густой"));
-    vectorContainer.addSpice(new Liquid("Соевый соус", SpiceColor::DARK, "Соленый", "Умами", "Жидкий"));
-
-    listSpices.push_back(new Herb("Розмарин", SpiceColor::GREEN, "Хвойный", "Древесный", "Средиземноморская кухня"));
-    listSpices.push_back(new Herb("Орегано", SpiceColor::GREEN, "Горький", "Пронзающий", "Средиземноморская кухня"));
-    listSpices.push_back(new Herb("Укроп", SpiceColor::GREEN, "Свежий", "Травянистый", "Скандинавская кухня"));
-    listSpices.push_back(new Powder("Карри", SpiceColor::YELLOW, "Пряный", "Ароматный", "Молотый"));
-    listSpices.push_back(new Powder("Чили", SpiceColor::RED, "Пряный", "Дымный", "Молотый"));
-    listSpices.push_back(new Liquid("Бальзамический уксус", SpiceColor::DARK, "Кислый", "Сладкий", "Густой"));
-    listSpices.push_back(new Liquid("Вустерский соус", SpiceColor::DARK, "Кислый", "Сложный", "Жидкий"));
+    int numRandomSpices = 10;
+    fillContainerWithRandomSpices(vectorContainer, numRandomSpices);
+    fillContainerWithRandomSpices(dequeSpices, numRandomSpices); // Используем deque вместо list
 
     cout << "_________________________________________________________________________________________" << endl;
 
-    cout << "Содержимое векторного контейнера после фильтрации по цвету и сортировки по имени:" << endl;
+    cout << "Content of the vector container after filtering by color and sorting by name:" << endl;
 
     VectorSpiceContainerIterator vectorIterator(vectorContainer.getSpices());
     vector<Spice*> filteredAndSortedVectorSpices;
-    vector<Spice*> notFilteredSpices;
-    for (vectorIterator.First(); !vectorIterator.IsDone(); vectorIterator.Next()) {
-        Spice* spice = vectorIterator.GetCurrent();
+    deque<Spice*> notFilteredSpices;
+    for (size_t i = 0; i < vectorContainer.getSpices().size(); ++i) {
+        Spice* spice = vectorContainer.getSpices()[i];
         if (spice->getColor() == SpiceColor::GREEN) {
             filteredAndSortedVectorSpices.push_back(spice);
         }
@@ -68,65 +98,67 @@ int main() {
     sort(filteredAndSortedVectorSpices.begin(), filteredAndSortedVectorSpices.end(), CompareSpicesByName);
     for (Spice* spice : filteredAndSortedVectorSpices) {
         spice->display();
+        cout << "Color: " << spiceColorToString(spice->getColor()) << endl;
         cout << endl;
     }
 
     cout << "_________________________________________________________________________________________" << endl;
 
-
-    cout << "Не прошедшие отбор из векторного контейнера:" << endl;
+    cout << "Not filtered spices from the vector container:" << endl;
     for (Spice* spice : notFilteredSpices) {
         spice->display();
+        cout << "Color: " << spiceColorToString(spice->getColor()) << endl;
         cout << endl;
     }
 
     cout << "_________________________________________________________________________________________" << endl;
 
-    cout << "Сортировка специй по вкусу для не отфильтрованных специй:" << endl;
+    cout << "Sorting spices by taste for not filtered spices:" << endl;
 
-    vector<Spice*> notFilteredAndNotSortedSpices;
-    for (Spice* spice : notFilteredSpices) {
-        notFilteredAndNotSortedSpices.push_back(spice);
-    }
+    // Используем deque вместо vector для notFilteredSpices
+    sort(notFilteredSpices.begin(), notFilteredSpices.end(), CompareSpicesByTaste);
+    DequeSpiceContainerIterator notFilteredIterator(notFilteredSpices);
 
-    TasteSortIterator tasteSortedIterator(new VectorSpiceContainerIterator(notFilteredAndNotSortedSpices));
-    for (tasteSortedIterator.First(); !tasteSortedIterator.IsDone(); tasteSortedIterator.Next()) {
-        tasteSortedIterator.GetCurrent()->display();
+    // Теперь мы можем использовать notFilteredIterator для перебора отсортированных специй
+    for (notFilteredIterator.First(); !notFilteredIterator.IsDone(); notFilteredIterator.Next()) {
+        notFilteredIterator.GetCurrent()->display();
+        cout << "Color: " << spiceColorToString(notFilteredIterator.GetCurrent()->getColor()) << endl;
         cout << endl;
     }
 
     cout << "_________________________________________________________________________________________" << endl;
 
-    cout << "Содержимое лист контейнера после фильтрации по цвету и сортировки по имени:" << endl;
+    cout << "Content of the deque container after filtering by color and sorting by name:" << endl;
 
-    ListSpiceContainerIterator listIterator(listSpices);
-    list<Spice*> filteredAndSortedlistSpices;
-    list<Spice*> notFilteredlistSpices;
-    for (listIterator.First(); !listIterator.IsDone(); listIterator.Next()) {
-        Spice* spice = listIterator.GetCurrent();
+    // Используем dequeSpices
+    sort(dequeSpices.begin(), dequeSpices.end(), CompareSpicesByName);
+    deque<Spice*> filteredAndSortedDequeSpices;
+    deque<Spice*> notFilteredDequeSpices;
+    for (size_t i = 0; i < dequeSpices.size(); ++i) {
+        Spice* spice = dequeSpices[i];
         if (spice->getColor() == SpiceColor::GREEN) {
-            filteredAndSortedlistSpices.push_back(spice);
+            filteredAndSortedDequeSpices.push_back(spice);
         }
         else {
-            notFilteredlistSpices.push_back(spice);
+            notFilteredDequeSpices.push_back(spice);
         }
     }
-    filteredAndSortedlistSpices.sort(CompareSpicesByName);
-    for (Spice* spice : filteredAndSortedlistSpices) {
+    for (Spice* spice : filteredAndSortedDequeSpices) {
         spice->display();
+        cout << "Color: " << spiceColorToString(spice->getColor()) << endl;
         cout << endl;
     }
 
     cout << "_________________________________________________________________________________________" << endl;
 
-    cout << "Не прошедшие отбор из лист контейнера" << endl;
+    cout << "Not filtered spices from the deque container:" << endl;
 
-
-
-    for (Spice* spice : notFilteredlistSpices) {
+    for (Spice* spice : notFilteredDequeSpices) {
         spice->display();
+        cout << "Color: " << spiceColorToString(spice->getColor()) << endl;
         cout << endl;
     }
 
     return 0;
 }
+
