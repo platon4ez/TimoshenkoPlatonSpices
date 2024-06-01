@@ -89,7 +89,6 @@ public:
     }
 };
 
-// Определение класса TasteSortIterator
 class TasteSortIterator : public SortingIterator<Spice*> {
 public:
     TasteSortIterator(Iterator<Spice*>* iterator, bool (*compare)(Spice*, Spice*))
