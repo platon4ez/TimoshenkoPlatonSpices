@@ -1,10 +1,11 @@
 ﻿#include <iostream>
 #include <deque>
 #include <list>
+#include <vector>
 #include <algorithm>
 #include <ctime>
-#include <sqlite3.h>
 #include <cstdlib>
+#include <sqlite3.h>
 #include "spices.h"
 #include "spice_container.h"
 #include "iterators.h"
@@ -14,28 +15,16 @@
 
 using namespace std;
 
-string colorToString(SpiceColor color) {
-    switch (color) {
-    case SpiceColor::GREEN:
-        return "Green";
-    case SpiceColor::BROWN:
-        return "Brown";
-    case SpiceColor::YELLOW:
-        return "Yellow";
-    default:
-        return "Unknown";
+template <typename Container>
+void fillContainerWithRandomSpices(Container& container, int numSpices) {
+    for (int i = 0; i < numSpices; ++i) {
+        container.push_back(SpiceFactory::createRandomSpice());
     }
 }
 
 void fillContainerWithRandomSpices(VectorSpiceContainer& container, int numSpices) {
     for (int i = 0; i < numSpices; ++i) {
         container.addSpice(SpiceFactory::createRandomSpice());
-    }
-}
-
-void fillContainerWithRandomSpices(deque<Spice*>& container, int numSpices) {
-    for (int i = 0; i < numSpices; ++i) {
-        container.push_back(SpiceFactory::createRandomSpice());
     }
 }
 
@@ -72,6 +61,14 @@ public:
     }
 };
 
+template <typename Container>
+void displayContainer(const Container& container) {
+    for (const auto& spice : container) {
+        spice->display();
+        cout << endl;
+    }
+}
+
 int main() {
     srand(static_cast<unsigned>(time(0)));
 
@@ -85,21 +82,13 @@ int main() {
     }
 
     cout << "Spices from the database without sorting" << endl;
-    for (Spice* spice : dbSpices) {
-        spice->display();
-        cout << "Color: " << colorToString(spice->getColor()) << endl; // Выводим цвет специи
-        cout << endl;
-    }
+    displayContainer(dbSpices);
 
     dbSpices.sort([](const Spice* a, const Spice* b) { return a->getName() < b->getName(); });
     cout << "_________________________________________________________________________________________" << endl;
 
     cout << "Spices from the database by alphabetical order:" << endl;
-    for (Spice* spice : dbSpices) {
-        spice->display();
-        cout << "Color: " << colorToString(spice->getColor()) << endl; // Выводим цвет специи
-        cout << endl;
-    }
+    displayContainer(dbSpices);
 
     VectorSpiceContainer vectorContainer;
     deque<Spice*> dequeSpices;
@@ -107,11 +96,10 @@ int main() {
     int numRandomSpices = 10;
     fillContainerWithRandomSpices(vectorContainer, numRandomSpices);
     fillContainerWithRandomSpices(dequeSpices, numRandomSpices);
+
     cout << "_________________________________________________________________________________________" << endl;
 
     cout << "Content of the vector container after filtering by color and sorting by name:" << endl;
-
-    VectorSpiceContainerIterator vectorIterator(vectorContainer.getSpices());
     vector<Spice*> filteredAndSortedVectorSpices;
     deque<Spice*> notFilteredSpices;
     for (size_t i = 0; i < vectorContainer.getSpices().size(); ++i) {
@@ -124,20 +112,12 @@ int main() {
         }
     }
     sort(filteredAndSortedVectorSpices.begin(), filteredAndSortedVectorSpices.end(), CompareSpicesByName);
-    for (Spice* spice : filteredAndSortedVectorSpices) {
-        spice->display();
-        cout << "Color: " << colorToString(spice->getColor()) << endl; // Выводим цвет специи
-        cout << endl;
-    }
+    displayContainer(filteredAndSortedVectorSpices);
 
     cout << "_________________________________________________________________________________________" << endl;
 
     cout << "Not filtered spices from the vector container:" << endl;
-    for (Spice* spice : notFilteredSpices) {
-        spice->display();
-        cout << "Color: " << colorToString(spice->getColor()) << endl; // Выводим цвет специи
-        cout << endl;
-    }
+    displayContainer(notFilteredSpices);
 
     cout << "_________________________________________________________________________________________" << endl;
 
@@ -148,7 +128,6 @@ int main() {
 
     for (notFilteredIterator.First(); !notFilteredIterator.IsDone(); notFilteredIterator.Next()) {
         notFilteredIterator.GetCurrent()->display();
-        cout << "Color: " << colorToString(notFilteredIterator.GetCurrent()->getColor()) << endl; // Выводим цвет специи
         cout << endl;
     }
 
@@ -168,21 +147,13 @@ int main() {
             notFilteredDequeSpices.push_back(spice);
         }
     }
-    for (Spice* spice : filteredAndSortedDequeSpices) {
-        spice->display();
-        cout << "Color: " << colorToString(spice->getColor()) << endl; // Выводим цвет специи
-        cout << endl;
-    }
+    displayContainer(filteredAndSortedDequeSpices);
 
     cout << "_________________________________________________________________________________________" << endl;
 
     cout << "Not filtered spices from the deque container:" << endl;
 
-    for (Spice* spice : notFilteredDequeSpices) {
-        spice->display();
-        cout << "Color: " << colorToString(spice->getColor()) << endl; // Выводим цвет специи
-        cout << endl;
-    }
+    displayContainer(notFilteredDequeSpices);
 
     return 0;
 }

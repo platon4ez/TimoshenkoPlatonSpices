@@ -1,12 +1,25 @@
-﻿// spices.h
-
-#ifndef SPICES_H
+﻿#ifndef SPICES_H
 #define SPICES_H
 
 #include <string>
+#include <iostream>
+
 using namespace std;
 
 enum class SpiceColor { GREEN, BROWN, YELLOW };
+
+string colorToString(SpiceColor color) {
+    switch (color) {
+    case SpiceColor::GREEN:
+        return "Green";
+    case SpiceColor::BROWN:
+        return "Brown";
+    case SpiceColor::YELLOW:
+        return "Yellow";
+    default:
+        return "Unknown";
+    }
+}
 
 class Spice {
 protected:
@@ -15,6 +28,7 @@ protected:
     string taste;
     string smell;
     string use;
+
 public:
     Spice(const string& name, SpiceColor color, const string& taste, const string& smell, const string& use)
         : name(name), color(color), taste(taste), smell(smell), use(use) {}
@@ -23,7 +37,7 @@ public:
 
     virtual void display() const {
         cout << "Name: " << name << endl;
-        cout << "Color: " << static_cast<int>(color) << endl;
+        cout << "Color: " << colorToString(color) << endl;
         cout << "Taste: " << taste << endl;
         cout << "Smell: " << smell << endl;
         cout << "Use: " << use << endl;
